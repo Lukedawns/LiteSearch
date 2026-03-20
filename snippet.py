@@ -21,8 +21,7 @@ def generate_snippet(doc_name, query_words: list[str], data_dir, window=40):
     raw_text = re.sub(r'<[^>]+>', ' ', raw_text)
     lower_text = raw_text.lower()
 
-    # 【核心架构优化：最长匹配优先】
-    # 将搜索词汇按长度从大到小排序。例如：["data science", "science", "data"]
+    # 将搜索词汇按长度从大到小排序。
     sorted_query_words = sorted(query_words, key=len, reverse=True)
     best_match_index = -1
     matched_word_len = 0

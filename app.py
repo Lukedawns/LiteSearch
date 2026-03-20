@@ -60,9 +60,6 @@ async def perform_search(q: str = Query(..., description="Search query keywords"
     processed_keyword = text_processor.clean_and_tokenize(keyword)
     results = searcher.search(processed_keyword)
 
-    if isinstance(results, str):
-        return SearchResponse(keyword=keyword, time_cost_seconds=0.0, results=[])
-
     response_data = []
     log_list = []
 

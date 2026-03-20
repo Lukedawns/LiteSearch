@@ -45,10 +45,3 @@ class QueryHistory:
             self.db.close()
         except Exception as e:
             logging.exception(f"Error closing connection: {e}")
-
-# if __name__ == "__main__":
-#     history = query_history()
-#     query_words = "Hello World!"
-#     history_table_name = history.legalize_table_name(query_words)
-#     history.create_history(history_table_name)
-#     history.insert_history(history_table_name, doc_name='dataset/test/neg/0_2.txt', context="Hello World!", score=5.548)

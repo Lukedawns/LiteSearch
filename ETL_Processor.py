@@ -10,26 +10,25 @@ from dotenv import load_dotenv
 
 
 class DocumentProcessor:
-    def __init__(self, init=True):
+    def __init__(self):
         self.stop_words = {
             "the", "a", "an", "and", "or", "but", "is", "are", "am",
             "in", "on", "at", "to", "for", "with", "of", "this", "that",
             "it", "he", "she", "they", "i", "we", "you"
         }
-        if init:
-            host = os.getenv('DB_HOST', 'localhost')
-            user = os.getenv('DB_USER', 'root')
-            password = os.getenv('DB_PASSWORD', '123456')
-            db_name = os.getenv('DB_NAME', 'lite_search')
+        host = os.getenv('DB_HOST', 'localhost')
+        user = os.getenv('DB_USER', 'root')
+        password = os.getenv('DB_PASSWORD', '123456')
+        db_name = os.getenv('DB_NAME', 'lite_search')
 
-            self.db = pymysql.connect(
-                host=host,
-                user=user,
-                password=password,
-                database=db_name,
-                autocommit=False
-            )
-            self.cursor = self.db.cursor()
+        self.db = pymysql.connect(
+            host=host,
+            user=user,
+            password=password,
+            database=db_name,
+            autocommit=False
+        )
+        self.cursor = self.db.cursor()
 
     def clean_and_tokenize(self, text, use_bigram=True):
         #text = BeautifulSoup(text, "html.parser").get_text(separator=' ')
@@ -43,7 +42,7 @@ class DocumentProcessor:
 
         if use_bigram:
             for i in range(len(basic_clean_tokens) - 1):
-                # 将相邻的两个词用空格连起来，当做一个新词
+                # 将相邻的两个词用空格连起来当做一个新词
                 bigram_word = f"{basic_clean_tokens[i]} {basic_clean_tokens[i + 1]}"
                 final_tokens.append(bigram_word)
 
