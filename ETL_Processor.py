@@ -2,7 +2,7 @@ import logging
 import re
 import os
 from pathlib import Path
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
 import pymysql
 from collections import Counter
 import time
@@ -70,7 +70,7 @@ class DocumentProcessor:
         max_id_result = self.cursor.fetchone()[0]
         current_doc_id = max_id_result if max_id_result is not None else 0
 
-        needAdd = False
+        need_add = False
         start = time.time()
         for file_path in directory_path.rglob('*.txt'):
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
@@ -79,9 +79,9 @@ class DocumentProcessor:
                 if relative_path in processed_files:
                     continue
 
-                if not needAdd:
+                if not need_add:
                     self.temp_close()
-                    needAdd = True
+                    need_add = True
 
                 content = file.read()
                 tokens = self.clean_and_tokenize(content)
@@ -110,13 +110,13 @@ class DocumentProcessor:
         if batch_documents:
             self.submit_to_sql(batch_documents, batch_inverted_index)
 
-        if needAdd:
+        if need_add:
             self.restart()
 
-        logging.info(f"ETL to MySQL completed successfully. {file_count} files aded. Total files: {num_processed_files + file_count}")
+        logging.info(f"ETL to MySQL completed successfully. {file_count} files added. Total files: {num_processed_files + file_count}")
         return
 
-    def submit_to_sql(self, documents, inversted_index):
+    def submit_to_sql(self, documents, inverted_index):
         if not documents: return
         # 写入本批次的文档表
         self.cursor.executemany("INSERT IGNORE INTO documents (doc_id, doc_name, word_count) VALUES (%s, %s, %s)", documents)
@@ -127,7 +127,7 @@ class DocumentProcessor:
         # self.cursor.execute(f"DELETE FROM inverted_index WHERE doc_id IN ({format_strings})", tuple(doc_ids))
 
         # 写入本批次的记录表
-        self.cursor.executemany("INSERT INTO inverted_index (keyword, doc_id, tf) VALUES (%s, %s, %s)", inversted_index)
+        self.cursor.executemany("INSERT INTO inverted_index (keyword, doc_id, tf) VALUES (%s, %s, %s)", inverted_index)
 
         self.db.commit()
 
@@ -138,7 +138,7 @@ class DocumentProcessor:
 
         try:
             self.cursor.execute("ALTER TABLE inverted_index DROP INDEX idx_keyword;")
-        except Exception:
+        except pymysql.MySQLError:
             pass
 
     def restart(self):
@@ -159,4 +159,4 @@ class DocumentProcessor:
 if __name__ == "__main__":
     load_dotenv('.env')
     processor = DocumentProcessor()
-    doc_dict = processor.load_and_save("./dataset")
+    processor.load_and_save("./dataset")

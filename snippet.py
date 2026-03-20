@@ -1,9 +1,9 @@
 import re
 from pathlib import Path
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
 import logging
 
-def generate_snippet(doc_name, query_words, data_dir, window=40):
+def generate_snippet(doc_name, query_words: list[str], data_dir, window=40):
     file_path = Path(data_dir) / doc_name
 
     if not file_path.exists():
@@ -26,10 +26,10 @@ def generate_snippet(doc_name, query_words, data_dir, window=40):
     sorted_query_words = sorted(query_words, key=len, reverse=True)
     best_match_index = -1
     matched_word_len = 0
+    actual_word_used = ""
 
     # 遍历排序后的词汇，寻找最具价值的锚点
     for word in sorted_query_words:
-        # \b 代表单词的开头或结尾。这样 \bfea\b 绝对不会匹配到 fear
         pattern = r'\b' + re.escape(word) + r'\b'
         match = re.search(pattern, lower_text)
 
@@ -43,11 +43,11 @@ def generate_snippet(doc_name, query_words, data_dir, window=40):
         logging.error("No context available.")
         return None
 
-    # 1. 计算理论上的截取起止位置 (Ideal boundaries)
+    # 计算理论上的截取起止位置
     ideal_start = max(0, best_match_index - window)
     ideal_end = min(len(raw_text), best_match_index + matched_word_len + window)
 
-    # 2. 【智能边界对齐】：向外扩展，寻找最近的空格，防止单词被拦腰截断
+    # 边界对齐：向外扩展，寻找最近的空格，防止单词被截断
     if ideal_start > 0: # 说明上下文不从文档开头开始
         # 在0到ideal_start之间，从右向左找最后一个空格
         space_idx = raw_text.rfind(' ', 0, ideal_start)
@@ -79,9 +79,3 @@ def generate_snippet(doc_name, query_words, data_dir, window=40):
 
 
     return f"{prefix}{highlighted_snippet.strip()}{suffix}"
-
-if __name__ == "__main__":
-    data_dir = 'dataset'
-    doc_name = 'test.txt'
-    res = generate_snippet(doc_name, query_words=['neighbor'], data_dir= 'dataset')
-    print(res)

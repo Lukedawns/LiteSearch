@@ -15,7 +15,7 @@ logging.info(f"Current database: {os.getenv('DB_NAME')}")
 from ETL_Processor import DocumentProcessor
 from Search import Search
 from snippet import generate_snippet
-from search_history import query_history
+from search_history import QueryHistory
 
 app = FastAPI(
     title="LiteSearch API",
@@ -36,7 +36,7 @@ dataset_path = os.path.join(BASE_DIR, dataset_name)
 
 text_processor = DocumentProcessor()
 searcher = Search()
-history = query_history()
+history = QueryHistory()
 history.create_history()
 
 class SearchResultItem(BaseModel):

@@ -10,6 +10,8 @@ def init_database():
     password = os.getenv('DB_PASSWORD', '123456')
     db_name = os.getenv('DB_NAME', 'lite_search')
 
+    db = None
+    cursor = None
     # 连接 SQL 服务
     try:
         db = pymysql.connect(
@@ -54,5 +56,5 @@ def init_database():
 
 
 if __name__ == "__main__":
-    load_dotenv('.env')
+    load_dotenv()
     init_database()

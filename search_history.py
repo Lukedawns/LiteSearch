@@ -1,10 +1,9 @@
 import logging
 import os
 import pymysql
-import re
 
 
-class query_history:
+class QueryHistory:
     def __init__(self):
         host = os.getenv('DB_HOST', 'localhost')
         user = os.getenv('DB_USER', 'root')
