@@ -50,7 +50,7 @@ class SearchResponse(BaseModel):
     results: list[SearchResultItem]
 
 @app.get("/api/search", response_model=SearchResponse)
-async def perform_search(q: str = Query(..., description="Search query keywords")):
+def perform_search(q: str = Query(..., description="Search query keywords")):
     if not q or not q.strip():
         raise HTTPException(status_code=400, detail="Search query cannot be empty")
 
@@ -95,7 +95,7 @@ async def perform_search(q: str = Query(..., description="Search query keywords"
 
 
 @app.post("/api/index")
-async def build_index():
+def build_index():
     try:
         logging.info("API trigger: Starting ETL process...")
         start = time.time()
