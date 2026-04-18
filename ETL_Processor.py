@@ -72,16 +72,16 @@ class DocumentProcessor:
         need_add = False
         start = time.time()
         for file_path in directory_path.rglob('*.txt'):
+            relative_path = file_path.relative_to(directory_path).as_posix()
+
+            if relative_path in processed_files:
+                continue
+
+            if not need_add:
+                self.temp_close()
+                need_add = True
+
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
-                relative_path = file_path.relative_to(directory_path).as_posix()
-
-                if relative_path in processed_files:
-                    continue
-
-                if not need_add:
-                    self.temp_close()
-                    need_add = True
-
                 content = file.read()
                 tokens = self.clean_and_tokenize(content)
                 document_token_count = len(tokens)
