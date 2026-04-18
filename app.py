@@ -1,6 +1,7 @@
 import os
 import time
 import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -17,12 +18,6 @@ from Search import Search
 from snippet import generate_snippet
 from search_history import QueryHistory
 
-app = FastAPI(
-    title="LiteSearch API",
-    description="Lite Local Text Search Engine",
-    version="1.0.1"
-)
-
 # app.add_middleware(
 #     CORSMiddleware,
 #     allow_origins=["*"],  # 允许所有域名访问
@@ -34,10 +29,33 @@ app = FastAPI(
 dataset_name = 'dataset'
 dataset_path = os.path.join(BASE_DIR, dataset_name)
 
-text_processor = DocumentProcessor()
-searcher = Search()
-history = QueryHistory()
-history.create_history()
+text_processor: DocumentProcessor | None = None
+searcher: Search | None = None
+history: QueryHistory | None = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global text_processor, searcher, history
+    text_processor = DocumentProcessor()
+    searcher = Search()
+    history = QueryHistory()
+    history.create_history()
+    logging.info("Database connected successfully.")
+
+    yield
+
+    if text_processor: text_processor.close_connection()
+    if searcher: searcher.close_connection()
+    if history: history.close_connection()
+    logging.info("Database connection closed.")
+
+
+app = FastAPI(
+    title="LiteSearch API",
+    description="Lite Local Text Search Engine",
+    version="1.0.1",
+    lifespan = lifespan
+)
 
 class SearchResultItem(BaseModel):
     doc_name: str
